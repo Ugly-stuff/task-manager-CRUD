@@ -1,51 +1,13 @@
-const express = require("express"); // using express 
-const cors = require("cors"); // connection between frontend-- backeEND
+require("dotenv").config();
 
-const app = express();
-app.use(cors());         // enabling cors for react connection
-app.use(express.json()); //to read JSON data needed middleware
+const app = require("./app");
+const connectDB = require("./config/db");
 
-let tasks = []; // basically its for temporary memory storage here imnot using any db
+connectDB();
 
-// get tasks
-app.get("/tasks", (req, res) => {
-  res.json(tasks);
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on PORT ${PORT}`);
 });
 
-// task add route
-app.post("/tasks", (req, res) => {
-  const { title } = req.body; // title coming from frontEND
-
-  if (!title) return res.json({ error: "Title required" }); // validation
-
-  const newTask = { // for new task object
-    id: Date.now(),
-    title,
-    completed: false, 
-  };
-
-  tasks.push(newTask);  //tasks added in array
-  res.json(newTask);
-});
-
-// toggle for complete/ incomplete
-app.patch("/tasks/:id", (req, res) => {
-  const id = req.params.id;
-
-  tasks.forEach(task => { // checking all task
-    if (task.id == id) task.completed = !task.completed;
-  });
-
-  res.json({ message: "updated" });
-});
-
-// deleting  tasks
-app.delete("/tasks/:id", (req, res) => {
-  const id = req.params.id;
-
-  tasks = tasks.filter(task => task.id != id); // removing
-
-  res.json({ message: "deleted" });
-});
-
-app.listen(5000, () => console.log("Server running")); // PORT 5000
